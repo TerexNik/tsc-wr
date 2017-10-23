@@ -28,4 +28,13 @@ public class Scan {
     @Lob
     @Getter @Setter
     private Blob scanfile;
+
+    public Scan() {
+    }
+
+    public Scan(String name, String format, Blob scanfile) {
+        this.name = name;
+        this.format = format;
+        this.scanfile = scanfile;
+    }
 }
