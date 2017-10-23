@@ -25,12 +25,12 @@ public class ScanService {
 
 
     @RequestMapping(value = "/scan", method = RequestMethod.PUT)
-    public void addOrUpdateFuncComp(@RequestBody Scan scan) {
+    public void updateScan(@RequestBody Scan scan) {
         scanDataManager.mergeScan(scan);
     }
 
 //    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-//    public void removeFuncComp(@RequestBody Scan scan) {
+//    public void removeScan(@RequestBody Scan scan) {
 //        scanDataManager.removeScan(scan);
 //    }
 
