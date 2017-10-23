@@ -20,7 +20,7 @@ public class ScanService {
     ScanDataManager scanDataManager;
 
     @RequestMapping(value = "/scan/{id}", method = RequestMethod.GET)
-    public Scan getScan(@PathVariable Long id) {
+    public Scan getScan(@PathVariable Long id) { // а тут формат возвращаемого значания должен быть byte[] ?
         return scanDataManager.getScan(id);
     }
 
@@ -28,11 +28,11 @@ public class ScanService {
 //    void addScan(@RequestBody Scan scan) {
 //        scanDataManager.addScan(scan);
 //    }
-    public void addScan(@RequestParam("file") MultipartFile file){
-//        String name = "scan";
-        if (!file.isEmpty()) {
+    public void addScan(@RequestParam("scanfile") MultipartFile scanfile){
+//    public void addScan(@RequestBody Scan scan, @RequestParam("scanfile") MultipartFile scanfile){
+        if (!scanfile.isEmpty()) {
             try {
-                byte[] bytes = file.getBytes();
+                byte[] bytes = scanfile.getBytes();
 //                BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File(name + "-uploaded")));
 //                stream.write(bytes);
 //                stream.close();
