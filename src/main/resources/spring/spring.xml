@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   					   http://www.springframework.org/schema/beans/spring-beans.xsd
+	   					   http://www.springframework.org/schema/context
+	   					   http://www.springframework.org/schema/context/spring-context.xsd
+	   					   http://www.springframework.org/schema/jee
+	   					   http://www.springframework.org/schema/jee/spring-jee.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<context:component-scan base-package="ru.tsc" />
+    <context:annotation-config/>
+    <mvc:annotation-driven />
+
+
+    <!--<jee:jndi-lookup id="tscDataSource" jndi-name="${datasource.jndi}"/>-->
+    <jee:jndi-lookup id="tscDataSource" jndi-name="jdbc/wrkres"/>
+
+    <bean id="tscEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+          depends-on="tscDataSource">
+        <property name="dataSource" ref="tscDataSource"/>
+        <property name="persistenceProviderClass" value="org.hibernate.ejb.HibernatePersistence"/>
+        <qualifier value="tscPersistentUnit"/>
+        <property name="persistenceUnitName" value="tscPersistentUnit" />
+        <property name="packagesToScan" >
+            <list>
+                <value>ru.tsc.dao</value>
+                <value>ru.tsc.model</value>
+                <value>ru.tsc.rest</value>
+            </list>
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.dialect">ru.tsc.dao.CustomOracle10gDialect</prop>
+                <prop key="hibernate.connection.datasource">jdbc/wrkres</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver">
+        <property name="messageConverters">
+            <array>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/plain;charset=UTF-8</value>
+                            <value>text/html;charset=UTF-8</value>
+                            <value>application/json;charset=UTF-8</value>
+                            <value>application/x-www-form-urlencoded;charset=UTF-8</value>
+                        </list>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean-->
+
+
+	<bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager" depends-on="tscEntityManagerFactory">
+		<property name="entityManagerFactory" ref="tscEntityManagerFactory" />
+	</bean>
+
+    <tx:annotation-driven transaction-manager="jpaTransactionManager" proxy-target-class="true"/>
+    <mvc:interceptors>
+        <bean id="webContentInterceptor"
+              class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+            <property name="cacheSeconds" value="0"/>
+        </bean>
+    </mvc:interceptors>
+
+    <security:http entry-point-ref="RESTAuthenticationEntryPoint" use-expressions="true">
+        <!--<security:intercept-url pattern="/employee/undefined" access="isAnonymous()"/>-->
+        <!--<security:intercept-url pattern="/employee/**" access="isAnonymous()"/>-->
+        <!--<security:intercept-url pattern="/reference" access="permitAll()"/>-->
+        <!--<security:intercept-url pattern="/login" access="permitAll()"/>-->
+        <security:intercept-url pattern="/**" access="permitAll()"/>
+
+        <security:headers>
+            <security:header name="Access-Control-Allow-Origin" value="*"/>
+            <security:header name="Access-Control-Allow-Headers" value="Origin, X-Requested-With, Content-Type, Accept"/>
+            <security:header name="Access-Control-Allow-Methods" value="GET, POST, PUT, DELETE, OPTIONS"/>
+        </security:headers>
+
+        <security:form-login
+                login-processing-url="/login"
+                username-parameter="username"
+                password-parameter="password"
+                authentication-success-handler-ref="RESTAuthenticationSuccessHandler"
+                authentication-failure-handler-ref="RESTAuthenticationFailureHandler"
+        />
+        <security:logout/>
+        <security:csrf disabled="true"/>
+        <security:cors configuration-source-ref="corsConfigurationSource"/>
+    </security:http>
+
+    <bean id="corsConfigurationSource" class="org.springframework.web.cors.UrlBasedCorsConfigurationSource"/>
+
+    <security:authentication-manager id="authenticationManager" erase-credentials="true">
+        <security:ldap-authentication-provider
+                server-ref="contextSource"
+                user-search-base="CN=BPM User,OU=SpecialAccount,DC=tsc,DC=ts"
+                user-search-filter="(sAMAccountName={0})"
+                group-role-attribute="CN"
+                group-search-base="OU=TSC,OU=Business,DC=tsc,DC=ts"
+                group-search-filter="(sAMAccountName={0})"/>
+        <security:authentication-provider ref='ldapAuthProvider' />
+    </security:authentication-manager>
+
+
+
+    <security:ldap-server
+            id="contextSource"
+            url="ldap://SDC.tsc.ts:389/"
+            manager-dn="CN=BPM User,OU=SpecialAccount,DC=tsc,DC=ts"
+            manager-password="!1@n#L$a%m"/>
+
+    <bean id="ldapAuthProvider" class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
+        <constructor-arg>
+            <bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
+                <constructor-arg ref="contextSource" />
+                <property name="userSearch" ref="userSearch" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
+                <constructor-arg ref="contextSource" />
+                <constructor-arg value="DC=tsc,DC=ts" />
+                <property name="searchSubtree" value="true" />
+                <property name="ignorePartialResultException" value="true" />
+                <property name="groupSearchFilter" value="(member={0})" />
+            </bean>
+        </constructor-arg>
+    </bean>
+    <bean id="userSearch" class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+        <constructor-arg index="0" value="DC=tsc,DC=ts" />
+        <constructor-arg index="1" value="(sAMAccountName={0})" />
+        <constructor-arg index="2" ref="contextSource" />
+        <property name="searchSubtree" value="true" />
+    </bean>
+
+
+</beans>

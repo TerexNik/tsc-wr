@@ -1,0 +1,192 @@
+create table TSC_WRKRES_CERTIFICATE
+(
+  ID NUMBER(19) not null
+    primary key,
+  CERTDATE DATE,
+  NAME VARCHAR2(255 char),
+  SCAN VARCHAR2(255 char),
+  VENDOR VARCHAR2(255 char),
+  COMPETENCEINTECHNOLOGY_ID NUMBER(19)
+)
+/
+
+create table TSC_WRKRES_COMPANY
+(
+  ID NUMBER(19) not null
+    primary key,
+  TEXT VARCHAR2(255 char)
+)
+/
+
+create table TSC_WRKRES_COMP_IN_TECH
+(
+  ID NUMBER(19) not null
+    primary key,
+  TEXT VARCHAR2(255 char),
+  VENDOR VARCHAR2(255 char)
+)
+/
+
+alter table TSC_WRKRES_CERTIFICATE
+  add constraint FK5FUPYPUAR9VCU367NDGKEP8IN
+foreign key (COMPETENCEINTECHNOLOGY_ID) references TSC_WRKRES_COMP_IN_TECH
+/
+
+create table TSC_WRKRES_CUSTOMER
+(
+  ID NUMBER(19) not null
+    primary key,
+  TEXT VARCHAR2(255 char)
+)
+/
+
+create table TSC_WRKRES_EMPLOYEE
+(
+  ID VARCHAR2(255 char) not null
+    primary key,
+  BUSINESSUNIT VARCHAR2(255 char),
+  DATEOFEMPLOYMENT DATE,
+  DEPARTMENT VARCHAR2(255 char),
+  EXPERIENCESTART DATE,
+  FIO VARCHAR2(255 char) not null,
+  GRADE NUMBER(19),
+  LOGIN VARCHAR2(255 char),
+  POSITION VARCHAR2(255 char)
+)
+/
+
+create table TSC_WRKRES_EMPL_CERT
+(
+  EMPLOYEE_ID VARCHAR2(255 char) not null
+    constraint FKCGJF2H4YAL2J2PUR18IM443M
+    references TSC_WRKRES_EMPLOYEE,
+  CERTIFICATES_ID NUMBER(19) not null
+    constraint UK_L7XTSQVN06G69UR8H5MVF6KUI
+    unique
+    constraint FKC24A1Y66MVSIRLYBLO555YXNM
+    references TSC_WRKRES_CERTIFICATE
+)
+/
+
+create table TSC_WRKRES_EMPL_COMP_IN_TECH
+(
+  ID NUMBER(19) not null
+    primary key,
+  SELFEVALUATION NUMBER(10),
+  COMPETENCEINTECHNOLOGY_ID NUMBER(19)
+    constraint FK20LMGPKB9IS6GV0U6U1REHKMF
+    references TSC_WRKRES_COMP_IN_TECH,
+  EMPLOYEE_ID VARCHAR2(255 char)
+    constraint FK2FQIWKP2R9H78SLNQHUF9B17R
+    references TSC_WRKRES_EMPLOYEE
+)
+/
+
+create table TSC_WRKRES_EMPL_FUNC_COMP
+(
+  ID NUMBER(19) not null
+    primary key,
+  SELFEVALUATION NUMBER(10),
+  EMPLOYEE_ID VARCHAR2(255 char)
+    constraint FKKLF9YVSG19SU2JIDN6N7CQ8SC
+    references TSC_WRKRES_EMPLOYEE,
+  FUNCTIONALCOMPETENCE_ID NUMBER(19)
+)
+/
+
+create table TSC_WRKRES_EMPL_PEXP
+(
+  EMPLOYEE_ID VARCHAR2(255 char) not null
+    constraint FKKLYGAF2G0VH7SGODW8HNPYV66
+    references TSC_WRKRES_EMPLOYEE,
+  PROJECTEXPERIENCE_ID NUMBER(19) not null
+    constraint UK_FV4UW011ROLCXWPQAEEB9JBGL
+    unique
+)
+/
+
+create table TSC_WRKRES_FUNC_COMP
+(
+  ID NUMBER(19) not null
+    primary key,
+  TEXT VARCHAR2(255 char)
+)
+/
+
+alter table TSC_WRKRES_EMPL_FUNC_COMP
+  add constraint FKHB1FHPQIOJ80MVUGG84G4TH9L
+foreign key (FUNCTIONALCOMPETENCE_ID) references TSC_WRKRES_FUNC_COMP
+/
+
+create table TSC_WRKRES_INDUSTRY
+(
+  ID NUMBER(19) not null
+    primary key,
+  TEXT VARCHAR2(255 char)
+)
+/
+
+create table TSC_WRKRES_PRODUCT
+(
+  ID NUMBER(19) not null
+    primary key,
+  TEXT VARCHAR2(255 char)
+)
+/
+
+create table TSC_WRKRES_PROJECT
+(
+  ID NUMBER(19) not null
+    primary key,
+  TEXT VARCHAR2(255 char),
+  CUSTOMERID NUMBER(19)
+)
+/
+
+create table TSC_WRKRES_PROJECTROLE
+(
+  ID NUMBER(19) not null
+    primary key,
+  TEXT VARCHAR2(255 char)
+)
+/
+
+create table TSC_WRKRES_PROJECT_EXP
+(
+  ID NUMBER(19) not null
+    primary key,
+  PARTICIPATIONEND DATE,
+  PARTICIPATIONSTART DATE,
+  PROJECT_ID NUMBER(19)
+    constraint FKKFDQPS443WFRLIAJOM6TAO856
+    references TSC_WRKRES_PROJECT,
+  PROJECTROLE_ID NUMBER(19)
+    constraint FK1PPTTK4EJCIHV1HXYFIHWTU18
+    references TSC_WRKRES_PROJECTROLE
+)
+/
+
+alter table TSC_WRKRES_EMPL_PEXP
+  add constraint FK5GX9LS19D6AFMY7INA4VIT5W7
+foreign key (PROJECTEXPERIENCE_ID) references TSC_WRKRES_PROJECT_EXP
+/
+
+create table TSC_WRKRES_PEXP_COMP_IN_TECH
+(
+  PROJECTEXPERIENCE_ID NUMBER(19) not null
+    constraint FKKMTXU9XAMD5RR2C6KXF2C89AQ
+    references TSC_WRKRES_PROJECT_EXP,
+  COMPETENCEINTECHNOLOGY_ID NUMBER(19) not null
+    constraint FKEROPXNF2Y4XFWE8IDDDUT4MD8
+    references TSC_WRKRES_COMP_IN_TECH
+)
+/
+
+create table TSC_WRKRES_SCAN
+(
+  ID NUMBER(19) not null
+    primary key,
+  SCANFILE BLOB
+)
+/
+
