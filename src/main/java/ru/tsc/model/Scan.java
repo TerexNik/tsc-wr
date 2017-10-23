@@ -17,6 +17,14 @@ public class Scan {
     @Getter @Setter private long id;
 
     @Column
+    @Getter @Setter
+    private String name;
+
+    @Column
+    @Getter @Setter
+    private String format;
+
+    @Column
     @Lob
     @Getter @Setter
     private Blob scanfile;
