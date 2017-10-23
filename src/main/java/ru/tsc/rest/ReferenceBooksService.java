@@ -6,10 +6,13 @@ import ru.tsc.dao.DictionaryDataManager;
 import ru.tsc.model.dictionary.CompetenceInTechnology;
 import ru.tsc.model.dictionary.FunctionalCompetence;
 import ru.tsc.model.dictionary.Project;
+import ru.tsc.util.ResponseUtill;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static ru.tsc.util.ResponseUtill.getResponseWithHeaderOk;
 
 @RestController
 @RequestMapping(value = "/reference")
@@ -21,7 +24,7 @@ public class ReferenceBooksService {
     @RequestMapping(value = "/project", method = RequestMethod.GET)
     public Map<String, Object> readProject() {
         List projects = dictionaryDataManager.getProjects();
-        Map<String, Object> response = generateResponse();
+        Map<String, Object> response = getResponseWithHeaderOk();
         response.put("project", projects);
         return response;
     }
@@ -39,7 +42,7 @@ public class ReferenceBooksService {
     @RequestMapping(value = "/functional-competence", method = RequestMethod.GET)
     public Map<String, Object> readFuncComp() {
         List functionalCompetences = dictionaryDataManager.getFunctionalCompetences();
-        Map<String, Object> response = generateResponse();
+        Map<String, Object> response = getResponseWithHeaderOk();
         response.put("functionalCompetence", functionalCompetences);
         return response;
     }
@@ -58,7 +61,7 @@ public class ReferenceBooksService {
     @RequestMapping(value = "/comp-in-tech", method = RequestMethod.GET)
     public Map<String, Object> readCompInTech() {
         List competenceInTechnologies = dictionaryDataManager.getCompetenceInTechnologies();
-        Map<String, Object> response = generateResponse();
+        Map<String, Object> response = getResponseWithHeaderOk();
         response.put("competenceInTechnology", competenceInTechnologies);
         return response;
     }
@@ -76,11 +79,13 @@ public class ReferenceBooksService {
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     public Object getAllReferences() {
-        Map<String, Object> response = new LinkedHashMap<>();
-        Map<String, String> header = new LinkedHashMap<>();
-        header.put("status", "ok");
-        header.put("auth", "true");
-        response.put("header", header);
+        Map<String, Object> response = getResponseWithHeaderOk();
+        Map<String, List> dictionaries = getDictionaries();
+        response.put("dictionaries", dictionaries);
+        return response;
+    }
+
+    private Map<String, List> getDictionaries() {
         Map<String, List> dictionaries = new LinkedHashMap<>();
         dictionaries.put("company", dictionaryDataManager.getCompanies());
         dictionaries.put("competenceInTechnology", dictionaryDataManager.getCompetenceInTechnologies());
@@ -90,16 +95,6 @@ public class ReferenceBooksService {
         dictionaries.put("product", dictionaryDataManager.getProducts());
         dictionaries.put("project", dictionaryDataManager.getProjects());
         dictionaries.put("projectRole", dictionaryDataManager.getProjectRoles());
-        response.put("dictionaries", dictionaries);
-        return response;
-    }
-
-    private Map<String,Object> generateResponse() {
-        Map<String, Object> response = new LinkedHashMap<>();
-        Map<String, String> header = new LinkedHashMap<>();
-        header.put("status", "ok");
-        header.put("auth", "true");
-        response.put("header", header);
-        return response;
+        return dictionaries;
     }
 }

@@ -1,6 +1,7 @@
 package ru.tsc.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unboundid.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,8 @@ import ru.tsc.model.*;
 import ru.tsc.util.LdapUtil;
 
 import java.util.*;
+
+import static ru.tsc.util.ResponseUtill.getResponseWithHeaderOk;
 
 /**
  * @author Terekhin Nikita
@@ -27,11 +30,7 @@ public class EmployeeService {
             employeeDataManager.createFromLDAP(LdapUtil.getAttributes(username));
         }
         Employee employee = employeeDataManager.readByLogin(username);
-        Map<String, Object> response = new LinkedHashMap<>();
-        Map<String, String> header = new LinkedHashMap<>();
-        header.put("status", "ok");
-        header.put("auth", "true");
-        response.put("header", header);
+        Map<String, Object> response = getResponseWithHeaderOk();
         response.put("employee", employee);
 
         printJSON(employee, " ### object from JPA");
@@ -39,7 +38,6 @@ public class EmployeeService {
         return response;
     }
 
-    /*@Transactional*/
     @RequestMapping(value = "/{username}/update", method = RequestMethod.PUT)
     public void updateEmployee(@PathVariable String username, @RequestBody Employee employeeFromUser) {
         printJSON(employeeFromUser, " ### object from UI");
@@ -54,7 +52,7 @@ public class EmployeeService {
     }*/
 
     @Transactional
-    private void removeProjectExp(List<ProjectExperience> projectExperience) {
+    void removeProjectExp(List<ProjectExperience> projectExperience) {
         for (ProjectExperience experience : projectExperience) {
             for (ProjectCompInTech projectCompInTech : experience.getCompetenceInTechnology()) {
                 employeeDataManager.removeProjectCompInTech(projectCompInTech);
@@ -66,7 +64,6 @@ public class EmployeeService {
     }
 
 
-    /*@Transactional*/
     private void clearEmployeeFields(Employee employee) {
         removeEmployeeFuncComp(employee.getEmployeeFuncComp());
         removeEmployeeCompInTech(employee.getEmployeeCompInTech());
@@ -74,28 +71,18 @@ public class EmployeeService {
     }
 
     @Transactional
-    private void removeEmployeeCompInTech(List<EmployeeCompInTech> employeeCompInTeches) {
+    void removeEmployeeCompInTech(List<EmployeeCompInTech> employeeCompInTeches) {
         for (EmployeeCompInTech employeeCompInTech: employeeCompInTeches) {
             employeeDataManager.removeEmployeeCompInTech(employeeCompInTech);
         }
     }
 
     @Transactional
-    private void removeEmployeeFuncComp(List<EmployeeFuncComp> employeeFuncComps) {
+    void removeEmployeeFuncComp(List<EmployeeFuncComp> employeeFuncComps) {
         for (EmployeeFuncComp employeeFuncComp: employeeFuncComps) {
             employeeDataManager.removeEmployeeFuncComp(employeeFuncComp);
         }
     }
-
-
-    /*private Object getCodeBad() {
-        HashMap<String,HashMap> response = new HashMap<>();
-        HashMap<String, String> header = new HashMap<>();
-        header.put("status","bad");
-        header.put("auth","false");
-        response.put("header", header);
-        return response;
-    }*/
 
     private void printJSON(Object request, String header) {
         ObjectMapper objectMapper = new ObjectMapper();
