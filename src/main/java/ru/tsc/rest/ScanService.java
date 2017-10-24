@@ -27,6 +27,7 @@ public class ScanService {
     @Autowired
     ScanDataManager scanDataManager;
 
+/*
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<byte[]> getScan(@PathVariable Long id) throws SQLException {
         Scan scan = scanDataManager.getScan(id);
@@ -41,6 +42,18 @@ public class ScanService {
 
         return new ResponseEntity<byte[]>(bytes, httpHeaders, HttpStatus.OK);
     }
+*/
+
+
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, consumes = "application/octet-stream", produces = "application/json;charset=utf-8")
+    public ResponseEntity<byte[]> getScan(@PathVariable Long id) throws SQLException {
+        Scan scan = scanDataManager.getScan(id);
+        Blob blob = scan.getScanfile();
+        byte[] bytes = blob.getBytes(1, (int) blob.length());
+        ResponseEntity<byte[]> result = new ResponseEntity<>(bytes, HttpStatus.OK);
+        return result;
+    }
 
 
     @RequestMapping(value = "/uploadDocumentFile", method = RequestMethod.POST, consumes = "application/octet-stream", produces = "application/json;charset=utf-8")
@@ -48,7 +61,13 @@ public class ScanService {
 //    public void addScan(@RequestBody Scan scan, @RequestParam("scanfile") MultipartFile scanfile){
         Blob blob = new SerialBlob(bytes);
 
-        Scan scan = new Scan(fileName, "format", blob);
+        String name = "name";
+        String format = "type";
+        if (fileName != null && fileName.contains(".")) {
+            name = fileName.split(".")[0];
+            format = fileName.split(".")[1];
+        }
+        Scan scan = new Scan(name, format, blob);
 
         scanDataManager.addScan(scan);
 
