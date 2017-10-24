@@ -3,7 +3,7 @@ package ru.tsc.security;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import ru.tsc.util.ResponseUtill;
+import ru.tsc.util.ResponseUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +16,6 @@ public class RESTAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, String.valueOf(ResponseUtill.getResponseWithHeaderBad()));
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, String.valueOf(ResponseUtil.getResponseWithHeaderBad()));
     }
 }

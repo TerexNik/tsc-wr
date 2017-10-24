@@ -3,7 +3,7 @@ package ru.tsc.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import ru.tsc.util.ResponseUtill;
+import ru.tsc.util.ResponseUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ public class RESTAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
             Authentication authentication)
             throws ServletException, IOException {
 
-        response.getWriter().print(ResponseUtill.getJsonResponseWithHeaderOk());
+        response.getWriter().print(ResponseUtil.getJsonResponseWithHeaderOk());
         response.getWriter().flush();
         clearAuthenticationAttributes(request);
     }

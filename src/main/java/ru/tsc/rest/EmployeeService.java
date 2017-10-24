@@ -1,8 +1,8 @@
 package ru.tsc.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unboundid.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.tsc.dao.*;
@@ -11,7 +11,7 @@ import ru.tsc.util.LdapUtil;
 
 import java.util.*;
 
-import static ru.tsc.util.ResponseUtill.getResponseWithHeaderOk;
+import static ru.tsc.util.ResponseUtil.getResponseWithHeaderOk;
 
 /**
  * @author Terekhin Nikita
@@ -24,8 +24,19 @@ public class EmployeeService {
     @Autowired
     private EmployeeDataManager employeeDataManager;
 
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json;charset=utf-8")
+    public Object getByLogin() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return checkUserExistenceAndGenerateResponse(username);
+    }
+
+
     @RequestMapping(value = "/{username}", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    public Object getByLogin(@PathVariable String username) {
+    public Object getUserByLogin(@PathVariable String username) {
+        return checkUserExistenceAndGenerateResponse(username);
+    }
+
+    public Object checkUserExistenceAndGenerateResponse(String username) {
         if (employeeDataManager.isUserExist(username)) {
             employeeDataManager.createFromLDAP(LdapUtil.getAttributes(username));
         }
@@ -34,7 +45,6 @@ public class EmployeeService {
         response.put("employee", employee);
 
         printJSON(employee, " ### object from JPA");
-
         return response;
     }
 
@@ -46,20 +56,13 @@ public class EmployeeService {
         employeeDataManager.mergeEmployee(employeeFromUser);
     }
 
-    /*private void clearProjectExp(Employee employeeFromUser, List<ProjectExperience> experiencesTMP) {
-        experiencesTMP.addAll(employeeFromUser.getProjectExperience());
-        employeeFromUser.setProjectExperience(new LinkedList<ProjectExperience>());
-    }*/
-
     @Transactional
     void removeProjectExp(List<ProjectExperience> projectExperience) {
         for (ProjectExperience experience : projectExperience) {
             for (ProjectCompInTech projectCompInTech : experience.getCompetenceInTechnology()) {
                 employeeDataManager.removeProjectCompInTech(projectCompInTech);
-                //projectCompInTech.setId(0L);
             }
             employeeDataManager.removeProjectExp(experience);
-            //experience.setId(0L);
         }
     }
 

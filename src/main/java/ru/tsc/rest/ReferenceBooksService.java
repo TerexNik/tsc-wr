@@ -6,13 +6,12 @@ import ru.tsc.dao.DictionaryDataManager;
 import ru.tsc.model.dictionary.CompetenceInTechnology;
 import ru.tsc.model.dictionary.FunctionalCompetence;
 import ru.tsc.model.dictionary.Project;
-import ru.tsc.util.ResponseUtill;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.tsc.util.ResponseUtill.getResponseWithHeaderOk;
+import static ru.tsc.util.ResponseUtil.getResponseWithHeaderOk;
 
 @RestController
 @RequestMapping(value = "/reference")

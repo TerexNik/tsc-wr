@@ -56,9 +56,10 @@
     </mvc:interceptors>
 
     <security:http entry-point-ref="RESTAuthenticationEntryPoint" authentication-manager-ref="authenticationManager">
-        <security:intercept-url pattern="/**" access="permitAll()" requires-channel="https"/>
+        <security:intercept-url pattern="/**" access="isAuthenticated()" requires-channel="https"/>
         <security:intercept-url pattern="/login" access="permitAll()" requires-channel="https"/>
-        <security:intercept-url pattern="/reference" access="permitAll()" requires-channel="https"/>
+        <security:intercept-url pattern="/employee" access="isAuthenticated()" requires-channel="https"/>
+        <security:intercept-url pattern="/reference" access="permitAll()" method="GET" requires-channel="https"/>
 
         <security:headers>
             <security:header name="Access-Control-Allow-Origin" value="*"/>

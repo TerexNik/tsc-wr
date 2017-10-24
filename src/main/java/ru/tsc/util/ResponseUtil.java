@@ -9,7 +9,8 @@ import java.util.Map;
 /**
  * @author Terekhin Nikita
  **/
-public class ResponseUtill {
+
+public class ResponseUtil {
     public static Map<String, Object> getResponseWithHeaderBad() {
         Map<String, Object> response = new LinkedHashMap<>();
         Map<String, Object> header = new LinkedHashMap<>();
