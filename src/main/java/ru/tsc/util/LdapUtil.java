@@ -21,16 +21,13 @@ public class LdapUtil {
 
     public static boolean checkUser(String distinguishedname, String password) {
         HashMap<String,String> attr = new HashMap<String,String>();
-
         Hashtable env = new Hashtable();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://SDC.tsc.ts:389/");
         env.put(Context.SECURITY_PRINCIPAL,distinguishedname);
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
-
         LdapContext ctx = null;
-
         try {
             ctx = new InitialLdapContext(env, null);
             return true;

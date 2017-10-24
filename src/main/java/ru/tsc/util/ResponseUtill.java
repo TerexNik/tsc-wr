@@ -1,5 +1,8 @@
 package ru.tsc.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,6 +17,17 @@ public class ResponseUtill {
         header.put("auth", false);
         response.put("header", header);
         return response;
+    }
+
+    public static String getJsonResponseWithHeaderOk() {
+        Map<String, Object> response = getResponseWithHeaderOk();
+        ObjectMapper oM = new ObjectMapper();
+        try {
+            return oM.writeValueAsString(response);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return getResponseWithHeaderBad().toString();
     }
 
     public static Map<String, Object> getResponseWithHeaderOk() {

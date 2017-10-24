@@ -43,24 +43,6 @@
         </property>
     </bean>
 
-    <!--bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver">
-        <property name="messageConverters">
-            <array>
-                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-                    <property name="supportedMediaTypes">
-                        <list>
-                            <value>text/plain;charset=UTF-8</value>
-                            <value>text/html;charset=UTF-8</value>
-                            <value>application/json;charset=UTF-8</value>
-                            <value>application/x-www-form-urlencoded;charset=UTF-8</value>
-                        </list>
-                    </property>
-                </bean>
-            </array>
-        </property>
-    </bean-->
-
-
 	<bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager" depends-on="tscEntityManagerFactory">
 		<property name="entityManagerFactory" ref="tscEntityManagerFactory" />
 	</bean>
@@ -73,70 +55,30 @@
         </bean>
     </mvc:interceptors>
 
-    <!--<security:http use-expressions="true">-->
-        <!--&lt;!&ndash;<security:intercept-url pattern="/employee/undefined" access="permitAll()"/>&ndash;&gt;-->
-        <!--&lt;!&ndash;<security:intercept-url pattern="/reference" access="permitAll()"/>&ndash;&gt;-->
-        <!--&lt;!&ndash;<security:intercept-url pattern="/login" access="permitAll()"/>&ndash;&gt;-->
-        <!--<security:intercept-url pattern="/**" access="permitAll()"/>-->
+    <security:http entry-point-ref="RESTAuthenticationEntryPoint" authentication-manager-ref="authenticationManager">
+        <security:intercept-url pattern="/**" access="permitAll()" requires-channel="https"/>
+        <security:intercept-url pattern="/login" access="permitAll()" requires-channel="https"/>
+        <security:intercept-url pattern="/reference" access="permitAll()" requires-channel="https"/>
 
-        <!--<security:headers>-->
-            <!--<security:header name="Access-Control-Allow-Origin" value="*"/>-->
-            <!--<security:header name="Access-Control-Allow-Headers" value="Origin, X-Requested-With, Content-Type, Accept"/>-->
-            <!--<security:header name="Access-Control-Allow-Methods" value="GET, POST, PUT, DELETE, OPTIONS"/>-->
-        <!--</security:headers>-->
+        <security:headers>
+            <security:header name="Access-Control-Allow-Origin" value="*"/>
+            <security:header name="Access-Control-Allow-Headers" value="Origin, X-Requested-With, Content-Type, Accept"/>
+            <security:header name="Access-Control-Allow-Methods" value="GET, POST, PUT, DELETE, OPTIONS"/>
+        </security:headers>
 
-        <!--<security:http-basic entry-point-ref="RESTAuthenticationEntryPoint"/>-->
-        <!--&lt;!&ndash;<security:form-login&ndash;&gt;-->
-                <!--&lt;!&ndash;login-processing-url="/login"&ndash;&gt;-->
-                <!--&lt;!&ndash;username-parameter="username"&ndash;&gt;-->
-                <!--&lt;!&ndash;password-parameter="password"&ndash;&gt;-->
-                <!--&lt;!&ndash;authentication-success-handler-ref="RESTAuthenticationSuccessHandler"&ndash;&gt;-->
-                <!--&lt;!&ndash;authentication-failure-handler-ref="RESTAuthenticationFailureHandler"/>&ndash;&gt;-->
-        <!--<security:logout/>-->
-        <!--<security:csrf disabled="true"/>-->
-        <!--<security:cors configuration-source-ref="corsConfigurationSource"/>-->
-    <!--</security:http>-->
+        <security:form-login
+                login-page="/login"
+                username-parameter="username"
+                password-parameter="password"
+                authentication-success-handler-ref="RESTAuthenticationSuccessHandler"
+                authentication-failure-handler-ref="RESTAuthenticationFailureHandler"/>
+        <security:csrf disabled="true"/>
+        <security:cors configuration-source-ref="corsConfigurationSource"/>
+    </security:http>
 
-    <!--<bean id="corsConfigurationSource" class="org.springframework.web.cors.UrlBasedCorsConfigurationSource"/>-->
+    <bean id="corsConfigurationSource" class="org.springframework.web.cors.UrlBasedCorsConfigurationSource"/>
 
-    <!--<security:authentication-manager id="authenticationManager" erase-credentials="true">-->
-        <!--<security:ldap-authentication-provider-->
-                <!--server-ref="contextSource"-->
-                <!--user-search-base="CN=BPM User,OU=SpecialAccount,DC=tsc,DC=ts"-->
-                <!--user-search-filter="(sAMAccountName={0})"-->
-                <!--group-role-attribute="CN"-->
-                <!--group-search-base="OU=TSC,OU=Business,DC=tsc,DC=ts"-->
-                <!--group-search-filter="(sAMAccountName={0})"/>-->
-        <!--<security:authentication-provider ref="ldapAuthProvider"/>-->
-    <!--</security:authentication-manager>-->
-
-    <!--<security:ldap-server-->
-            <!--id="contextSource"-->
-            <!--url="ldap://SDC.tsc.ts:389/"-->
-            <!--manager-dn="CN=BPM User,OU=SpecialAccount,DC=tsc,DC=ts"-->
-            <!--manager-password="!1@n#L$a%m"/>-->
-
-    <!--<bean id="ldapAuthProvider" class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">-->
-        <!--<constructor-arg>-->
-            <!--<bean class="org.springframework.security.ldap.authentication.BindAuthenticator">-->
-                <!--<constructor-arg ref="contextSource" />-->
-                <!--<property name="userSearch" ref="userSearch"/>-->
-            <!--</bean>-->
-        <!--</constructor-arg>-->
-        <!--<constructor-arg>-->
-            <!--<bean class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">-->
-                <!--<constructor-arg ref="contextSource" />-->
-                <!--<constructor-arg value="DC=tsc,DC=ts" />-->
-                <!--<property name="searchSubtree" value="true" />-->
-                <!--<property name="ignorePartialResultException" value="true" />-->
-                <!--<property name="groupSearchFilter" value="(member={0})" />-->
-            <!--</bean>-->
-        <!--</constructor-arg>-->
-    <!--</bean>-->
-    <!--<bean id="userSearch" class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">-->
-        <!--<constructor-arg index="0" value="DC=tsc,DC=ts" />-->
-        <!--<constructor-arg index="1" value="(sAMAccountName={0})" />-->
-        <!--<constructor-arg index="2" ref="contextSource" />-->
-        <!--<property name="searchSubtree" value="true" />-->
-    <!--</bean> -->
+    <security:authentication-manager id="authenticationManager">
+        <security:authentication-provider ref="customAuthenticationProvider"/>
+    </security:authentication-manager>
 </beans>
