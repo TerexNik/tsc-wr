@@ -1,5 +1,7 @@
 package ru.tsc.dao;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tsc.model.*;
@@ -9,6 +11,8 @@ import ru.tsc.model.dictionary.CompetenceInTechnology;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,6 +35,39 @@ public class EmployeeDataManager {
                     .getSingleResult();
         } catch (NoResultException e) {
             return null;
+        }
+    }
+
+    public List<EmployeeHeader> getEmployeeList() {
+        Query query = entityManager.createQuery("select e from Employee e", Employee.class); //id, fio, login, position, businessUnit
+        List<Employee> resultList = query.getResultList();
+
+        List<EmployeeHeader> result = new ArrayList<>(resultList.size());
+        if (resultList != null && resultList.size() > 0) {
+            for (Employee employee : resultList) {
+                result.add(new EmployeeHeader(employee));
+            }
+        }
+        return result;
+    }
+
+    public class EmployeeHeader {
+        @Getter @Setter private String id;
+
+        @Getter @Setter private String fio;
+
+        @Getter @Setter private String login;
+
+        @Getter @Setter private String position;
+
+        @Getter @Setter private String businessUnit;
+
+        EmployeeHeader(Employee employee) {
+            this.id = employee.getId();
+            this.fio = employee.getFio();
+            this.login = employee.getLogin();
+            this.position = employee.getPosition();
+            this.businessUnit = employee.getBusinessUnit();
         }
     }
 
@@ -109,39 +146,6 @@ public class EmployeeDataManager {
 
     public void addProjectExp(ProjectExperience experience,Employee employee) {
         entityManager.merge(employee);
-
-        //        entityManager.createNativeQuery(
-//                "INSERT INTO TSC_WRKRES_PROJECT_EXP " +
-//                "(ID, PARTICIPATIONSTART, PARTICIPATIONEND " +
-//                        " PROJECTROLE_ID, PROJECT_ID)" +
-//                "set p.ID = :id, " +
-//                "p.PARTICIPATIONSTART = :participationStart," +
-//                "p.PARTICIPATIONEND = :participationEnd, " +
-//                "p.PROJECTROLE_ID = :projectRoleId," +
-//                "p.PROJECT_ID = :projectId")
-//                .setParameter("id", experience.getId())
-//                .setParameter("participationStart", experience.getParticipationStart())
-//                .setParameter("participationEnd", experience.getParticipationEnd())
-//                .setParameter("projectRoleId", experience.getProjectRole().getId())
-//                .setParameter("projectId", experience.getProject().getId())
-//                .executeUpdate();
-//
-//        for (CompetenceInTechnology technology:experience.getCompetenceInTechnology()) {
-//            entityManager.createNativeQuery("update TSC_WRKRES_PEXP_COMP_IN_TECH set " +
-//                    "TSC_WRKRES_PEXP_COMP_IN_TECH.PROJECTEXPERIENCE_ID = :pexpId, " +
-//                    "TSC_WRKRES_PEXP_COMP_IN_TECH.COMPETENCEINTECHNOLOGY_ID = :compId")
-//                    .setParameter("pexpId", experience.getId())
-//                    .setParameter("compId", technology.getId())
-//                    .executeUpdate();
-//        }
-//
-//        entityManager.createNativeQuery("INSERT INTO TSC_WRKRES_EMPL_PEXP(EMPLOYEE_ID, PROJECTEXPERIENCE_ID) " +
-//                "VALUES (:employeeID, :projexpId)")
-//                .setParameter("employeeID", employeeId)
-//                .setParameter("projexpId", experience.getId())
-//                .executeUpdate();
-//
-
     }
 
     private void checkEmployeeFields(String key, String value, Employee employee) {

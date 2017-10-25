@@ -24,6 +24,11 @@ public class EmployeeService {
     @Autowired
     private EmployeeDataManager employeeDataManager;
 
+    @RequestMapping(value = "/employeeList", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
+    public List<EmployeeDataManager.EmployeeHeader> getEmployeeList() {
+        return employeeDataManager.getEmployeeList();
+    }
+
     @RequestMapping(method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     public Object getByLogin() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -36,7 +41,7 @@ public class EmployeeService {
         return checkUserExistenceAndGenerateResponse(username);
     }
 
-    public Object checkUserExistenceAndGenerateResponse(String username) {
+    private Object checkUserExistenceAndGenerateResponse(String username) {
         if (employeeDataManager.isUserExist(username)) {
             employeeDataManager.createFromLDAP(LdapUtil.getAttributes(username));
         }
