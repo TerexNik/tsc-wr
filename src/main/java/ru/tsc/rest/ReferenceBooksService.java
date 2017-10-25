@@ -13,6 +13,7 @@ import java.util.Map;
 
 import static ru.tsc.util.ResponseUtil.getResponseWithHeaderOk;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/reference")
 public class ReferenceBooksService {

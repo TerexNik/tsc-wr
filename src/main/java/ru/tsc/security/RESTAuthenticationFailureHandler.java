@@ -3,6 +3,7 @@ package ru.tsc.security;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
+import ru.tsc.util.ResponseUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ public class RESTAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
         super.onAuthenticationFailure(request, response, exception);
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().print(ResponseUtil.getJsonResponseWithHeaderBad());
+        response.getWriter().flush();
     }
 }

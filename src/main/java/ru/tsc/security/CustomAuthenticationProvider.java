@@ -1,6 +1,8 @@
 package ru.tsc.security;
 
 import com.unboundid.util.Base64;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,9 +28,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider{
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
+        ArrayList<GrantedAuthority> roles = new ArrayList<>();
+        roles.add(new Role(LdapUtil.getRole(username).toString()));
+
         try {
             if (checkAuthentication(username, password)) {
-                return new UsernamePasswordAuthenticationToken(username, password, new ArrayList<GrantedAuthority>());
+                return new UsernamePasswordAuthenticationToken(username, password, roles);
             }
             return null;
         } catch (IOException e) {
@@ -51,6 +56,19 @@ public class CustomAuthenticationProvider implements AuthenticationProvider{
         } catch (ParseException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public class Role implements GrantedAuthority {
+        @Getter @Setter String role;
+
+        public Role(String role) {
+            this.role = role;
+        }
+
+        @Override
+        public String getAuthority() {
+            return getRole();
         }
     }
 }

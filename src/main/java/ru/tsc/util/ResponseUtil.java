@@ -31,6 +31,17 @@ public class ResponseUtil {
         return getResponseWithHeaderBad().toString();
     }
 
+    public static String getJsonResponseWithHeaderBad() {
+        Map<String, Object> response = getResponseWithHeaderBad();
+        ObjectMapper oM = new ObjectMapper();
+        try {
+            return oM.writeValueAsString(response);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return getResponseWithHeaderBad().toString();
+    }
+
     public static Map<String, Object> getResponseWithHeaderOk() {
         Map<String, Object> response = new LinkedHashMap<>();
         Map<String, Object> header = new LinkedHashMap<>();

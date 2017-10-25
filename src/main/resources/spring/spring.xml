@@ -60,9 +60,9 @@
             <security:port-mapping http="9083" https="9446"/>
         </security:port-mappings>
         <security:intercept-url pattern="/login" access="permitAll()" requires-channel="https"/>
-        <security:intercept-url pattern="/employee" access="isAuthenticated()" requires-channel="https"/>
-        <security:intercept-url pattern="/reference" access="permitAll()" method="GET" requires-channel="https"/>
-        <security:intercept-url pattern="/**" access="permitAll()" method="OPTIONS" requires-channel="https"/>
+        <security:intercept-url pattern="/role" access="permitAll()" requires-channel="https"/>
+        <!--<security:intercept-url pattern="/reference" access="permitAll()" method="GET" requires-channel="https"/>-->
+        <!--<security:intercept-url pattern="/employee" access="isAuthenticated()" requires-channel="https"/>-->
         <security:intercept-url pattern="/**" access="isAuthenticated()" requires-channel="https"/>
 
         <security:headers>

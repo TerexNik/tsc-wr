@@ -11,22 +11,26 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 
 @Component
 public class LdapUtil {
 
-    public static boolean checkUser(String distinguishedname, String password) {
-        HashMap<String,String> attr = new HashMap<String,String>();
+    private static Hashtable makeConfig(String distinguishedname, String password) {
         Hashtable env = new Hashtable();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://SDC.tsc.ts:389/");
-        env.put(Context.SECURITY_PRINCIPAL,distinguishedname);
+        env.put(Context.SECURITY_PRINCIPAL, distinguishedname);
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        return env;
+
+    }
+
+    public static boolean checkUser(String distinguishedname, String password) {
+        HashMap<String,String> attr = new HashMap<String,String>();
+        Hashtable env = makeConfig(distinguishedname, password);
         LdapContext ctx = null;
         try {
             ctx = new InitialLdapContext(env, null);
@@ -44,20 +48,21 @@ public class LdapUtil {
         return false;
     }
 
+    public static String getRole(String username) {
+        HashMap<String,String> attr = new HashMap<String,String>();
+        Hashtable env = makeConfig("CN=BPM User,OU=SpecialAccount,DC=tsc,DC=ts", "!1@n#L$a%m");
+        String[] returnedAtts={"memberOf"};
+        String searchFilter = String.format("(sAMAccountName=%s)",username);
+        getDataFromLdap(searchFilter, attr, env, returnedAtts);
+        return attr.toString().split("=")[2].split(",")[0];
+    }
+
 
     public static HashMap<String,String> getAttributes(String login) {
         HashMap<String,String> attr = new HashMap<String,String>();
-
-        Hashtable env = new Hashtable();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://SDC.tsc.ts:389/");
-        env.put(Context.SECURITY_PRINCIPAL,"CN=BPM User,OU=SpecialAccount,DC=tsc,DC=ts");
-        env.put(Context.SECURITY_CREDENTIALS, "!1@n#L$a%m");
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-
+        Hashtable env = makeConfig("CN=BPM User,OU=SpecialAccount,DC=tsc,DC=ts", "!1@n#L$a%m");
         String[] returnedAtts={"title", /*"department",*/ "st", "userprincipalname", "distinguishedname"};
         String searchFilter = String.format("(sAMAccountName=%s)",login);
-
         getDataFromLdap(searchFilter, attr, env, returnedAtts);
 
         return attr;
