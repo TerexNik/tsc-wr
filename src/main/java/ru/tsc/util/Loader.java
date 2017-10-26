@@ -11,7 +11,7 @@ import java.util.Hashtable;
 public class Loader {
 
     public static void main(String[] args) {
-        System.out.println(LdapUtil.getRole("asavchenko"));
+        System.out.println(LdapUtil.getRole("omalanova"));
         int a;
     }
 }

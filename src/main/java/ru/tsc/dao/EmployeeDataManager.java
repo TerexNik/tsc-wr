@@ -2,12 +2,10 @@ package ru.tsc.dao;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tsc.model.*;
 import org.springframework.context.annotation.DependsOn;
-import ru.tsc.model.dictionary.CompetenceInTechnology;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -39,8 +37,16 @@ public class EmployeeDataManager {
         }
     }
 
-    public List<EmployeeHeader> getEmployeeList() {
-        Query query = entityManager.createQuery("select e from Employee e", Employee.class); //id, fio, login, position, businessUnit
+    public List<Employee> getEmployeeList() {
+        Query query = entityManager.createQuery("select e from Employee e", Employee.class);
+        List<Employee> resultList = query.getResultList();
+        return resultList;
+    }
+
+
+    public List<EmployeeHeader> getEmployeeHeaderList() {
+        //id, fio, login, position, businessUnit
+        Query query = entityManager.createQuery("select e from Employee e", Employee.class);
         List<Employee> resultList = query.getResultList();
 
         List<EmployeeHeader> result = new ArrayList<>(resultList.size());

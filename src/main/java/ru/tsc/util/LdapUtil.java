@@ -54,7 +54,7 @@ public class LdapUtil {
         String[] returnedAtts={"memberOf"};
         String searchFilter = String.format("(sAMAccountName=%s)",username);
         getDataFromLdap(searchFilter, attr, env, returnedAtts);
-        return attr.toString().split("=")[2].split(",")[0];
+        return attr.toString().split("CN=")[1].split(",")[0];
     }
 
 

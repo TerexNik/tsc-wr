@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.tsc.dao.*;
 import ru.tsc.model.*;
-import ru.tsc.security.CustomAuthenticationProvider;
+import ru.tsc.model.dictionary.FunctionalCompetence;
 import ru.tsc.util.LdapUtil;
 
 import java.util.*;
@@ -26,17 +26,6 @@ public class EmployeeService {
     @Autowired
     private EmployeeDataManager employeeDataManager;
 
-    @RequestMapping(value = "/role-test", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    public Object getEmployeeRole() {
-//        return SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        Map<String, Object> response = getResponseWithHeaderOk();
-        Map<String, Object> role = new HashMap<String,Object>();
-        role.put("role", "WR_CURATOR");
-        response.put("data", role);
-
-        return response;
-    }
-
     @RequestMapping(value = "/role", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     public Object getEmployeeRoleTest() {
         Map<String, Object> response = getResponseWithHeaderOk();
@@ -48,7 +37,7 @@ public class EmployeeService {
     public Object getEmployeeList() {
         Map<String, Object> response = getResponseWithHeaderOk();
         Map<String, Object> data = new HashMap<>();
-        data.put("list", employeeDataManager.getEmployeeList());
+        data.put("list", employeeDataManager.getEmployeeHeaderList());
         response.put("data", data);
         return response;
     }
