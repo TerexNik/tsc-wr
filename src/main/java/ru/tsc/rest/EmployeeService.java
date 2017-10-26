@@ -2,7 +2,6 @@ package ru.tsc.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,6 @@ import ru.tsc.util.LdapUtil;
 
 import java.util.*;
 
-import static ru.tsc.util.ResponseUtil.getJsonResponseWithHeaderOk;
 import static ru.tsc.util.ResponseUtil.getResponseWithHeaderOk;
 
 /**
@@ -28,7 +26,7 @@ public class EmployeeService {
     @Autowired
     private EmployeeDataManager employeeDataManager;
 
-    @RequestMapping(value = "/role", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
+    @RequestMapping(value = "/role-test", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     public Object getEmployeeRole() {
 //        return SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         Map<String, Object> response = getResponseWithHeaderOk();
@@ -39,9 +37,11 @@ public class EmployeeService {
         return response;
     }
 
-    @RequestMapping(value = "/role-test", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
+    @RequestMapping(value = "/role", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     public Object getEmployeeRoleTest() {
-        return Arrays.toString(SecurityContextHolder.getContext().getAuthentication().getAuthorities().toArray());
+        Map<String, Object> response = getResponseWithHeaderOk();
+        response.put("data", SecurityContextHolder.getContext().getAuthentication().getAuthorities().toArray()[0]);
+        return response;
     }
 
     @RequestMapping(value = "/employeeList", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
@@ -55,8 +55,8 @@ public class EmployeeService {
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     public Object getByLogin() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return checkUserExistenceAndGenerateResponse(username);
+        return checkUserExistenceAndGenerateResponse(
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
 
@@ -77,10 +77,11 @@ public class EmployeeService {
         return response;
     }
 
-    @RequestMapping(value = "/{username}/update", method = RequestMethod.PUT)
-    public void updateEmployee(@PathVariable String username, @RequestBody Employee employeeFromUser) {
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    public void updateEmployee(@RequestBody Employee employeeFromUser) {
         printJSON(employeeFromUser, " ### object from UI");
-        Employee employeeFromBase = employeeDataManager.readByLogin(username);
+        Employee employeeFromBase = employeeDataManager.readByLogin(
+                SecurityContextHolder.getContext().getAuthentication().getName());
         clearEmployeeFields(employeeFromBase);
         employeeDataManager.mergeEmployee(employeeFromUser);
     }
