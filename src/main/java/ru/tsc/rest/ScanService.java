@@ -47,6 +47,8 @@ public class ScanService {
 
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, consumes = "application/octet-stream", produces = "application/json;charset=utf-8")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<byte[]> getScan(@PathVariable Long id) throws SQLException {
         Scan scan = scanDataManager.getScan(id);
         Blob blob = scan.getScanfile();
@@ -57,19 +59,29 @@ public class ScanService {
 
 
     @RequestMapping(value = "/uploadDocumentFile", method = RequestMethod.POST, consumes = "application/octet-stream", produces = "application/json;charset=utf-8")
-    public void addScan(@RequestBody byte[] bytes, @RequestParam String fileName) throws SQLException{
-//    public void addScan(@RequestBody Scan scan, @RequestParam("scanfile") MultipartFile scanfile){
-        Blob blob = new SerialBlob(bytes);
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public String addScan(@RequestBody byte[] bytes, @RequestParam String fileName) throws SQLException{
+        if (bytes.length != 0) {
+            // сохраняем файл
 
-        String name = "name";
-        String format = "type";
-        if (fileName != null && fileName.contains(".")) {
-            name = fileName.split(".")[0];
-            format = fileName.split(".")[1];
+            Blob blob = new SerialBlob(bytes);
+
+            String name = "name";
+            String format = "type";
+            if (fileName != null && fileName.contains(".")) {
+                name = fileName.split(".")[0];
+                format = fileName.split(".")[1];
+            }
+            Scan scan = new Scan(name, format, blob);
+
+            scanDataManager.addScan(scan);
+
+            return "scan_id";//"fileId";
+        } else {
+            System.out.println("File not found");
+            return null;
         }
-        Scan scan = new Scan(name, format, blob);
-
-        scanDataManager.addScan(scan);
 
 //        String name = "scan";
 //        if (!scanfile.isEmpty()) {
