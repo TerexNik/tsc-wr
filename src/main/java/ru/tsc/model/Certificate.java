@@ -41,4 +41,10 @@ public class Certificate implements Serializable {
 */
     @Column (name = "COMPETENCEINTECHNOLOGY_ID")
     @Getter @Setter private Long competenceInTechnology;
+
+    @Column (name = "SCAN_ID")
+    @Getter @Setter private  Long scan_id;
+
+    @Column (name = "FILENAME")
+    @Getter @Setter private String file_name;
 }
